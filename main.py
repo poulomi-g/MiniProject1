@@ -3,6 +3,8 @@ try:
     import os
     import os.path
     import sqlite3
+
+    from register import register
     # from getpass import getpass
     # from datetime import datetime
     # import time
@@ -35,6 +37,7 @@ def main():
 
     # Menu action will run every time there input error
     while True:
+        os.system('clear')
         print("********************************")
         print()
         print("1. Register")
@@ -66,7 +69,7 @@ def main():
 
         else:
             os.system('clear')
-            print("Input not available!")
+            print("Input not available! Try again")
             continue
 
 
