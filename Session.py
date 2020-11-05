@@ -4,6 +4,7 @@ try:
     from datetime import datetime
     import time
     from creatQuestionPost import createQuestionPost
+    from searchPost import searchPost
 
 
 except ImportError as args:
@@ -45,5 +46,9 @@ def startSession(uid, conn, db):
         elif int(action) == 1:
             os.system('clear')
             createQuestionPost(uid, conn, db)
+
+        elif int(action) == 2:
+            os.system('clear')
+            searchPost(uid, conn, db)
 
     return
