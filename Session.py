@@ -3,6 +3,7 @@ try:
     import os
     from datetime import datetime
     import time
+    from creatQuestionPost import createQuestionPost
 
 
 except ImportError as args:
@@ -11,9 +12,10 @@ except ImportError as args:
 
 
 def startSession(uid, conn, db):
+    print("Session started")
 
     while True:
-        print("Session started")
+
         print()
         print("********************************")
         print("What would you like to do today?")
@@ -25,9 +27,23 @@ def startSession(uid, conn, db):
         action = input("Your selection: ")
         print("********************************")
 
+        if not action:
+            os.system('clear')
+            print("ERROR: Please select an action")
+            continue
+
+        if not action.isdigit():
+            os.system('clear')
+            print("ERROR: Please enter one of the given options")
+            continue
+
         if int(action) == 3:
             os.system('clear')
             print("Successfully logged out")
             break
+
+        elif int(action) == 1:
+            os.system('clear')
+            createQuestionPost(uid, conn, db)
 
     return
