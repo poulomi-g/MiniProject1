@@ -14,7 +14,7 @@ def login(conn, db):
     os.system('clear')
 
     while True:
-        print('REGISTRATION')
+        print('LOGIN')
         print("********************************")
         print()
         login_uid = input("User ID: ")
@@ -60,5 +60,4 @@ def login(conn, db):
             print()
             print("Starting session...")
             startSession(user, conn, db)
-
-            break
+            return
