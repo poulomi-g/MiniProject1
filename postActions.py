@@ -19,14 +19,14 @@ def showResults(uid, result, conn, db):
     else:
         for i in range(5):
             print(result[i])
-        print("View more/actions")
-        postActionSelector(uid, result, 5, conn, db)
+    print("View more/actions")
+    postActionSelector(uid, result, 5, conn, db)
 
 
 def displayMore(uid, result, start, conn, db):
     print(start)
     print(len(result))
-    if (start) < len(result):
+    if len(result) - start < 5:
         for i in range(start, len(result)):
             print(result[i])
         print("End of results")
@@ -102,10 +102,12 @@ def postActionSelector(uid, result, end, conn, db):
             if not status:
                 os.system('clear')
                 print("No such posts!")
+                continue
 
             else:
                 os.system('clear')
                 conn, db = status
                 print("Post created!")
+                break
 
-            return conn, db
+    return conn, db
