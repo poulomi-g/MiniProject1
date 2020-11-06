@@ -11,7 +11,7 @@ except ImportError as args:
     exit(1)
 
 
-def showResults(result, conn, db):
+def showResults(uid, result, conn, db):
     if len(result) < 5:
         for i in range(len(result)):
             print(result[i])
@@ -20,7 +20,7 @@ def showResults(result, conn, db):
         for i in range(5):
             print(result[i])
         print("View more/actions")
-        postActionSelector(result, 5, conn, db)
+        postActionSelector(uid, result, 5, conn, db)
 
 
 def searchPost(uid, conn, db):
@@ -75,4 +75,4 @@ def searchPost(uid, conn, db):
     queryInputs = tuple(queryInputs)
     result = db.execute(query, queryInputs).fetchall()
 
-    showResults(result, conn, db)
+    showResults(uid, result, conn, db)
