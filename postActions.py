@@ -191,6 +191,55 @@ def acceptAnswer(uid, conn, db):
                 return True
 
 
+def convertTuple(tup):
+    str = ''.join(tup)
+    return str
+
+
+def check_badge(badgename, cursor):  # checks if badge name is valid
+    badgeList = [badgename.lower()]
+    cursor.execute(
+        "SELECT bname from badges WHERE lower(bname) = ?;", badgeList)
+    if cursor.fetchone():
+        return True
+    else:
+        return False
+
+
+def give_badge(user, conn, cursor):
+    print()
+    pid = input("Which post would you like to give a badge to: ")
+
+    # Check if post exists:
+    posts = cursor.execute(
+        "SELECT pid FROM posts WHERE posts.pid = ? ", (pid,)).fetchall()
+
+    if not posts:
+        print("No such posts exists")
+        return False
+
+    badge_name = input("please input the badge name you would like to give: ")
+    badge_condition = True
+    while badge_condition:
+        if check_badge(badge_name, cursor) == True:
+            badge_condition = False
+        else:
+            badge_name = input(
+                "you inputted an incorrect badge name, please try again: ")
+            continue
+
+    checkList = [pid.lower()]
+    cursor.execute(
+        " SELECT poster from posts WHERE lower(pid) = ?;", checkList)
+    poster = cursor.fetchone()
+    poster = convertTuple(poster)
+    checkList = [poster.lower(), badge_name.lower()]
+    cursor.execute(
+        " INSERT OR REPLACE INTO ubadges (uid, bdate, bname) VALUES (?, date('now'), ?); ", checkList)
+    conn.commit()
+    print("badge succesfully added")
+
+
 def postActionSelector(uid, result, end, conn, db):
     while True:
         print("What would you like to do next: ")
@@ -254,5 +303,8 @@ def postActionSelector(uid, result, end, conn, db):
                 os.system('clear')
                 print('No answer marked as accepted')
                 continue
+
+        if int(action) == 5:
+            badgeStatus = give_badge(uid, conn, db)
 
     return conn, db
