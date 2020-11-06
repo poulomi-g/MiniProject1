@@ -77,6 +77,55 @@ def answerPost(user, conn, db):
             return False
 
 
+def votePost(user, conn, db):
+    print()
+    post = input("Which post would you like to vote: ")
+
+    # Check if post exists:
+    posts = db.execute(
+        "SELECT pid FROM posts WHERE posts.pid = ? ", (post,)).fetchall()
+
+    # If no such posts:
+    if not posts:
+        print(1)
+        return False
+
+    else:
+        # Check if post already has a vote from user:
+        existing_vote = db.execute(
+            "SELECT votes.vno FROM votes WHERE votes.uid = ? AND votes.pid = ?", (user, posts[0][0],))
+
+        if not existing_vote:
+            vote_date = datetime.date(datetime.now())
+            vote_uid = user
+            vote_pid = posts[0][0]
+
+            # Assign vno:
+            # Check if table empty:
+            emptyCheck = db.execute("SELECT * from votes").fetchall()
+            vno = 0
+            if not emptyCheck:
+                # No votes yet
+                vno = 1
+
+            else:
+                maxvote = db.execute("SELECT COUNT(vno) FROM votes").fetchall()
+                if int(maxvote[0][0]) < 9999:
+                    vno += 1
+                else:
+                    print("Max total votes")
+                    return False
+
+            db.execute("INSERT INTO votes (pid, vno, vdate, uid) VALUES(?, ?, ?, ?)",
+                       (vote_pid, vno, vote_date, user))
+            conn.commit()
+            return True
+
+        else:
+            print("This post has already been voted by you")
+            return False
+
+
 def postActionSelector(uid, result, end, conn, db):
     while True:
         print("What would you like to do next: ")
@@ -109,5 +158,17 @@ def postActionSelector(uid, result, end, conn, db):
                 conn, db = status
                 print("Post created!")
                 break
+
+        if int(action) == 2:
+            # os.system('clear')
+            voteStatus = votePost(uid, conn, db)
+
+            if voteStatus:
+                print("Vote successful")
+                break
+
+            else:
+                print("Try again")
+                continue
 
     return conn, db

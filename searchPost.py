@@ -75,4 +75,9 @@ def searchPost(uid, conn, db):
     queryInputs = tuple(queryInputs)
     result = db.execute(query, queryInputs).fetchall()
 
-    showResults(uid, result, conn, db)
+    if not result:
+        os.system('clear')
+        print("No matching posts")
+
+    else:
+        showResults(uid, result, conn, db)
