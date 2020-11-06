@@ -15,12 +15,14 @@ def showResults(uid, result, conn, db):
     if len(result) < 5:
         for i in range(len(result)):
             print(result[i])
+        print("View more/actions")
+        postActionSelector(uid, result, 5, conn, db)
 
     else:
         for i in range(5):
             print(result[i])
         print("View more/actions")
-        postActionSelector(uid, result, 5, conn, db)
+        postActionSelector(uid, result, len(result), conn, db)
 
 
 def searchPost(uid, conn, db):

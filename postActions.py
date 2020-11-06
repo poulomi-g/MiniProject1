@@ -126,6 +126,71 @@ def votePost(user, conn, db):
             return False
 
 
+def checkPriviledge(user, conn, db):
+    # check if user is a privileged user
+    user = user.lower()
+    privileged_user = False
+    rows = db.execute("SELECT uid FROM privileged")
+    rows = db.fetchall()
+    if not rows:
+        print("No privileged users yet")
+        return False
+    else:
+        try:
+            for elem in rows:
+                if elem[0].lower() == user:
+                    priveleged_user = True
+                    return priveleged_user
+        except:
+            return False
+
+
+def acceptAnswer(uid, conn, db):
+    # Check if post exists in answers:
+    print()
+    post = input("Which post would you like to mark as accepted answer: ")
+
+    # Check if post exists:
+    existingAnswer = db.execute(
+        "SELECT * FROM answers WHERE answers.pid = ? ", (post,)).fetchall()
+
+    if not existingAnswer:
+        print("Answer post doesnt exist, try again")
+        return False
+
+    else:
+        # Check if question has an answer already:
+        question_pid = existingAnswer[0][1]
+        answer_pid = existingAnswer[0][0]
+        print(question_pid)
+        print(answer_pid)
+
+        matchingQuestion_theaid = db.execute(
+            "SELECT IFNULL(questions.theaid, 0) FROM questions WHERE questions.pid = ?", (question_pid,)).fetchall()
+
+        print(matchingQuestion_theaid)
+        if matchingQuestion_theaid[0][0] == 0:  # No assigned answer yet
+            db.execute("UPDATE questions SET theaid = ? WHERE pid = ?",
+                       (answer_pid, question_pid,))
+            conn.commit()
+            print("Worked")
+            return True
+
+        else:
+            action = input(
+                "This post already has an assigned answer. Would you like to change it? (y/n): ")
+
+            if action == 'n':
+                return False
+
+            else:
+                db.execute("UPDATE questions SET theaid = ? WHERE pid = ?",
+                           (answer_pid, question_pid,))
+                conn.commit()
+                print("Worked")
+                return True
+
+
 def postActionSelector(uid, result, end, conn, db):
     while True:
         print("What would you like to do next: ")
@@ -135,6 +200,12 @@ def postActionSelector(uid, result, end, conn, db):
         if end != None:
             print("3. View next page of results: ")
         print()
+        if checkPriviledge(uid, conn, db):
+            print("4. Mark answer as accepted")
+            print("5. Give a badge")
+            print("6. Add a tag")
+            print("7. Update a post")
+
         action = input("Your action: ")
 
         if int(action) == 0:
@@ -169,6 +240,19 @@ def postActionSelector(uid, result, end, conn, db):
 
             else:
                 print("Try again")
+                continue
+
+        if int(action) == 4:
+            acceptAnswerStatus = acceptAnswer(uid, conn, db)
+
+            if acceptAnswerStatus:
+                os.system('clear')
+                print("Marked as accepted")
+                break
+
+            else:
+                os.system('clear')
+                print('No answer marked as accepted')
                 continue
 
     return conn, db
