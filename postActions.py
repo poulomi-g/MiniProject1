@@ -238,6 +238,100 @@ def give_badge(user, conn, cursor):
         " INSERT OR REPLACE INTO ubadges (uid, bdate, bname) VALUES (?, date('now'), ?); ", checkList)
     conn.commit()
     print("badge succesfully added")
+    return True
+
+
+def add_tag(user, conn, cursor):  # PU query 3 '3. Post action-Add a tag'
+    print()
+    pid = input("Which post would you like to give a badge to: ")
+
+    # Check if post exists:
+    posts = cursor.execute(
+        "SELECT pid FROM posts WHERE posts.pid = ? ", (pid,)).fetchall()
+
+    if not posts:
+        print("No such posts exists")
+        return False
+
+    else:  # add their tag to table
+        # check that tag does not already exist
+        tag_duplicate = True
+        new_tag = input("Type the tag you would like to add: ")
+        if not new_tag:
+            print("Tag cannot be null")
+            return False
+        while tag_duplicate:
+            rows = cursor.execute("SELECT tag FROM tags")
+            rows = cursor.fetchall()
+            tag_duplicate = False
+            for elem in rows:
+                if elem[0].lower() == new_tag.lower():
+                    tag_duplicate = True
+                    new_tag = input(
+                        "That tag already exists, try adding different one: ")
+        tagList = [pid.lower(), new_tag.lower()]
+        cursor.execute("INSERT INTO tags VALUES (?, ?);", tagList)
+        conn.commit()
+        print("Tag added successfully\n")
+        return True
+
+
+def edit_post(user, conn, cursor):  # PU query 4 '4. Post Action-Edit'
+    print()
+    pid = input("Which post would you like to edit: ")
+
+    # Check if post exists:
+    posts = cursor.execute(
+        "SELECT pid FROM posts WHERE posts.pid = ? ", (pid,)).fetchall()
+
+    if not posts:
+        print("No such posts exists")
+        return False
+
+    else:  # change title and/or body of post
+        edit_condition1 = True
+        while edit_condition1:
+            user_choice = input(
+                "Would you like to edit the title of this post? (Y) or (N) ")
+            if user_choice.upper() == 'Y':
+                new_title = input("What would you like the new title to be? ")
+                if not new_title:
+                    print("Title cant be null")
+                    return False
+                titleList = [new_title, pid.lower()]
+                cursor.execute(""" UPDATE posts
+                        SET title = ?
+                        WHERE pid = ? ;""", titleList)
+                conn.commit()
+                print("Title changed successfully\n")
+                edit_condition1 = False
+            elif user_choice.upper() == 'N':
+                edit_condition1 = False
+            else:
+                print("wrong input try again")
+                continue
+        edit_condition2 = True
+        while edit_condition2:
+            user_choice = input(
+                "Would you like to edit the body of this post? (Y) or (N) ")
+            if user_choice.upper() == 'Y':
+                new_body = input("What would you like the new body to be? ")
+                if not new_body:
+                    print("Title cant be null")
+                    return False
+                bodyList = [new_body, pid.lower()]
+                cursor.execute(""" UPDATE posts
+                        SET body = ?
+                        WHERE pid = ? ;""", bodyList)
+                conn.commit()
+                print("Body changed successfully\n")
+                edit_condition2 = False
+            elif user_choice.upper() == 'N':
+                edit_condition2 = False
+            else:
+                print("wrong input try again")
+
+        return True
 
 
 def postActionSelector(uid, result, end, conn, db):
@@ -306,5 +400,40 @@ def postActionSelector(uid, result, end, conn, db):
 
         if int(action) == 5:
             badgeStatus = give_badge(uid, conn, db)
+            if badgeStatus:
+                os.system('clear')
+                print("Badge awarded!")
+                break
+
+            else:
+                os.system('clear')
+                print("Try again")
+                continue
+
+        if int(action) == 6:
+            tagStatus = add_tag(uid, conn, db)
+
+            if tagStatus:
+                os.system('clear')
+                print("Tag added")
+                break
+
+            else:
+                os.system('clear')
+                print("Try again")
+                continue
+
+        if int(action) == 7:
+            editStatus = edit_post(uid, conn, db)
+
+            if editStatus:
+                os.system('clear')
+                print("Changes added")
+                break
+
+            else:
+                os.system('clear')
+                print("Try again")
+                continue
 
     return conn, db

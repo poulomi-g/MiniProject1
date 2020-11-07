@@ -30,6 +30,10 @@ def createQuestionPost(uid, conn, db):
         post_title = input("Enter your post title: ")
         post_body = input("Enter your post body: ")
 
+        if not post_title or not post_body:
+            print("Cannot be null")
+            break
+
         # Add checks for posts here
 
         post_date = datetime.date(datetime.now())
